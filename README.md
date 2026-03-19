@@ -6,6 +6,7 @@ Repositorio de exercicios do 1° ano de Sistemas de Informacao.
 
 - **APPC** - Algoritmos de Programacao, Projetos e Computacao
 - **ExpBD** - Experimentos Praticos de Banco de Dados
+- **TI** - TECNOLOGIAS EM TI
 
 ## Projetos
 
