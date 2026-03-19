@@ -5,10 +5,10 @@ create table ALUNOS (
  id_aluno int primary key,
  nome varchar(100),
  idade int,
- cidade varchar(50)  
+ cidade varchar(50)
 );
 
-INSERT INTO ALUNOS (id_aluno, nome, idade, cidade) VALUES 
+INSERT INTO ALUNOS (id_aluno, nome, idade, cidade) VALUES
 (1, 'pedrinho', 12, 'São Paulo'),
 (2, 'joãozinho', 19, 'Campinas'),
 (3, 'henrique', 18, 'Pedreira');
@@ -42,10 +42,10 @@ UPDATE PRODUTOS
 SET preco = preco * 1.10
 WHERE id_produto = 1;
 
-DELETE FROM PRODUTO
+DELETE FROM PRODUTOS
 WHERE estoque = 0;
 
-SELECT * FROM ALUNOS;
+SELECT * FROM PRODUTOS;
 
 
 # Exercício 3 – Cadastro de Funcionários
@@ -57,30 +57,69 @@ create table FUNCIONARIOS (
     salario float
 );
 
-INSERT INTO FUNCIONARIOS (id_funcionario, nome, cargo, salario) VALUES 
-(1, 'harthur', 'Pedreiro',  6),
-(2, 'leandrinho', 'cozinheiro',  7),
-(3, 'davizinho', 'padeiro',  8),
-(4, 'henzinho', 'peixeiro',  9),
-(5, 'rodriguinho', 'analista',  10);
+INSERT INTO FUNCIONARIOS (id_funcionario, nome, cargo, salario) VALUES
+(1, 'harthur', 'Pedreiro', 1500),
+(2, 'leandrinho', 'Cozinheiro', 2500),
+(3, 'davizinho', 'Padeiro', 1800),
+(4, 'henzinho', 'Peixeiro', 3000),
+(5, 'rodriguinho', 'Analista', 3500);
 
-UPDATE FUNCIONARIO
-SET preco = preco * 1.10
-WHERE id_produto = 1;
+UPDATE FUNCIONARIOS
+SET salario = salario + 500
+WHERE cargo = 'Analista';
 
-DELETE FROM PRODUTO
-WHERE estoque = 0;
+DELETE FROM FUNCIONARIOS
+WHERE salario < 2000;
 
-
-
-
-# Exercício 4 –
+SELECT * FROM FUNCIONARIOS;
 
 
+# Exercício 4 – Cadastro de Livros
 
-# Exercício 5 –
+create table LIVROS (
+	id_livro int primary key,
+    titulo varchar(150),
+    autor varchar(100),
+    ano_publicacao int
+);
+
+INSERT INTO LIVROS (id_livro, titulo, autor, ano_publicacao) VALUES
+(1, 'Dom Casmurro', 'Machado de Assis', 1899),
+(2, 'O Alquimista', 'Paulo Coelho', 2005),
+(3, 'Harry Potter', 'J.K. Rowling', 2001),
+(4, 'O Pequeno Príncipe', 'Antoine de Saint-Exupéry', 1943);
+
+UPDATE LIVROS
+SET ano_publicacao = 2010
+WHERE id_livro = 2;
+
+DELETE FROM LIVROS
+WHERE ano_publicacao < 2000;
+
+SELECT * FROM LIVROS;
 
 
+# Exercício 5 – Cadastro de Clientes
 
+create table CLIENTES (
+	id_cliente int primary key,
+    nome varchar(100),
+    email varchar(100),
+    telefone varchar(20)
+);
 
+INSERT INTO CLIENTES (id_cliente, nome, email, telefone) VALUES
+(1, 'Carlos Silva', 'carlos@email.com', '11999990001'),
+(2, 'Ana Souza', 'ana@email.com', '11999990002'),
+(3, 'Bruno Lima', 'bruno@email.com', '11999990003'),
+(4, 'Julia Santos', 'julia@email.com', '11999990004'),
+(5, 'Rafael Costa', 'emailinvalido', '11999990005');
 
+UPDATE CLIENTES
+SET telefone = '11988887777'
+WHERE id_cliente = 1;
+
+DELETE FROM CLIENTES
+WHERE email NOT LIKE '%@%';
+
+SELECT * FROM CLIENTES;
