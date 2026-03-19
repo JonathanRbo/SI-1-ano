@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard de progresso do curso Sistemas de Informacao - 1 Ano. 13 arquivos, 9 com codigo.">
+    <meta name="theme-color" content="#0a0f1a">
+    <meta property="og:title" content="SI - 1 Ano | Dashboard">
+    <meta property="og:description" content="Sistemas de Informacao - Dashboard de Progresso com 13 arquivos organizados por disciplina e aula.">
+    <meta property="og:type" content="website">
+    <title>SI - 1 Ano | Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.squeleton.dev/squeleton.v4.min.css">
+    <script src="https://cdn.squeleton.dev/squeleton-main.v4.min.js"></script>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    body { background:#0a0f1a; color:#e2e8f0; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; }
+
+    /* Hero */
+    .hero-title {
+        background:linear-gradient(135deg,#a78bfa 0%,#34d399 50%,#fb923c 100%);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .hero-bg { position:absolute; inset:0; z-index:-1; overflow:hidden; }
+    .hero-bg::before {
+        content:''; position:absolute; width:600px; height:600px; top:-200px; left:-100px;
+        background:radial-gradient(circle,rgba(167,139,250,0.07) 0%,transparent 70%);
+    }
+    .hero-bg::after {
+        content:''; position:absolute; width:500px; height:500px; bottom:-150px; right:-100px;
+        background:radial-gradient(circle,rgba(52,211,153,0.05) 0%,transparent 70%);
+    }
+
+    /* Stats */
+    .stat-box {
+        background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05);
+        transition:transform 0.2s,border-color 0.2s;
+    }
+    .stat-box:hover { transform:translateY(-2px); border-color:rgba(255,255,255,0.1); }
+
+    /* Pulse dot */
+    .live-dot {
+        width:6px; height:6px; border-radius:50%; background:#34d399;
+        animation:dot-pulse 2s infinite;
+    }
+    @keyframes dot-pulse {
+        0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(52,211,153,0.4); }
+        50% { opacity:.7; box-shadow:0 0 0 6px rgba(52,211,153,0); }
+    }
+
+    /* Disc/Aula headers */
+    .disc-header, .aula-header { user-select:none; transition:background 0.15s; }
+    .disc-header:hover { background:rgba(255,255,255,0.02); }
+    .aula-header:hover { background:rgba(255,255,255,0.03); }
+    .chevron { transition:transform 0.2s; }
+
+    /* File rows */
+    .file-row { border:1px solid transparent; transition:all 0.12s; }
+    .file-row.cursor-pointer:hover { background:rgba(255,255,255,0.03)!important; border-color:rgba(255,255,255,0.06)!important; }
+    .file-row.cursor-pointer:hover .view-icon { color:#a78bfa!important; }
+    .file-row.search-match { background:rgba(167,139,250,0.04)!important; }
+    .dot { width:8px; height:8px; border-radius:50%; display:inline-block; flex-shrink:0; }
+
+    /* Filter pills */
+    .filter-pill {
+        background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+        color:#64748b; transition:all 0.15s;
+    }
+    .filter-pill:hover { border-color:rgba(255,255,255,0.15); color:#94a3b8; }
+    .filter-pill.active { background:rgba(167,139,250,0.15); border-color:#a78bfa; color:#a78bfa; }
+
+    /* Nav disc links */
+    .nav-disc-link:hover { background:rgba(255,255,255,0.04); text-decoration:none; }
+
+    /* Code viewer */
+    .code-viewer::-webkit-scrollbar { width:6px; height:6px; }
+    .code-viewer::-webkit-scrollbar-track { background:#0d1117; }
+    .code-viewer::-webkit-scrollbar-thumb { background:#21262d; border-radius:3px; }
+    .code-viewer::-webkit-scrollbar-thumb:hover { background:#30363d; }
+    .line-nums span { display:block; }
+
+    /* Truncation */
+    .truncation-banner {
+        text-align:center; padding:12px; background:#161b22;
+        color:#8b949e; border-top:1px solid #21262d; font-size:12px;
+    }
+
+    /* Modal override */
+    .modal-popup { background:transparent!important; }
+    [data-modal="code-viewer"] .dialog-close { display:none; }
+
+    /* Search */
+    #search-input::placeholder { color:#475569; }
+    #search-input:focus { border-color:#a78bfa; }
+
+    /* Scroll to top */
+    .scroll-top {
+        position:fixed; bottom:30px; right:30px; z-index:99;
+        width:44px; height:44px; border-radius:50%;
+        background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.3);
+        color:#a78bfa; cursor:pointer; font-size:20px;
+        opacity:0; transform:translateY(10px); transition:all 0.3s;
+        display:flex; align-items:center; justify-content:center;
+        backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    }
+    .scroll-top.visible { opacity:1; transform:translateY(0); }
+    .scroll-top:hover { background:rgba(167,139,250,0.25); border-color:#a78bfa; }
+
+    /* Copy button */
+    .copy-btn {
+        background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+        color:#8b949e; cursor:pointer; padding:4px 12px; border-radius:6px;
+        font-size:12px; transition:all 0.15s;
+    }
+    .copy-btn:hover { background:rgba(255,255,255,0.1); color:#e6edf3; }
+    .copy-btn.copied { background:rgba(52,211,153,0.15); border-color:#34d399; color:#34d399; }
+
+    /* Kbd hint */
+    .kbd-hint {
+        font-size:10px; color:#475569; background:rgba(255,255,255,0.04);
+        border:1px solid rgba(255,255,255,0.08); border-radius:4px;
+        padding:1px 6px; font-family:'JetBrains Mono',monospace;
+    }
+
+    /* Active pill dynamic color */
+    .filter-pill.active[data-pill-color] { background:var(--pill-bg); border-color:var(--pill-color); color:var(--pill-color); }
+</style>
+</head>
+<body>
+
+<nav class="main-nav ps-sticky d-flex f-items-center f-justify-between f-gap-15 p-12-tb p-25-lr xs-p-10-tb xs-p-15-lr"
+     id="main-nav" style="top:0;z-index:100;background:#0a0f1aee;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.04);transform:translateY(-100%);transition:transform 0.3s;">
+    <span class="fs-7 fw-700 xs-d-none" style="color:#f1f5f9;">SI 1 Ano</span>
+    <div class="d-flex f-gap-8 xs-d-none" id="nav-links">
+        <a href="#disc-APPC" class="nav-disc-link fs-3 fw-600 p-4-tb p-12-lr border-rd-6" data-nav-disc="APPC" style="color:#a78bfa;transition:background 0.15s;">APPC</a>
+<a href="#disc-ExpBD" class="nav-disc-link fs-3 fw-600 p-4-tb p-12-lr border-rd-6" data-nav-disc="ExpBD" style="color:#34d399;transition:background 0.15s;">ExpBD</a>
+<a href="#disc-Projetos" class="nav-disc-link fs-3 fw-600 p-4-tb p-12-lr border-rd-6" data-nav-disc="Projetos" style="color:#fb923c;transition:background 0.15s;">Projetos</a>
+
+    </div>
+    <div class="d-flex f-gap-8 f-wrap xs-f-grow-1" id="filter-pills">
+        <button class="filter-pill active fs-3 fw-600 p-5-tb p-14-lr border-rd-20 cursor-pointer" data-filter="all">Todas</button>
+<button class="filter-pill fs-3 fw-600 p-5-tb p-14-lr border-rd-20 cursor-pointer" data-filter="APPC" data-pill-color="#a78bfa">APPC</button>
+<button class="filter-pill fs-3 fw-600 p-5-tb p-14-lr border-rd-20 cursor-pointer" data-filter="ExpBD" data-pill-color="#34d399">ExpBD</button>
+<button class="filter-pill fs-3 fw-600 p-5-tb p-14-lr border-rd-20 cursor-pointer" data-filter="Projetos" data-pill-color="#fb923c">Projetos</button>
+
+    </div>
+    <input type="text" id="search-input" class="fs-5 p-8-tb p-15-lr border-rd-8 xs-w-100"
+           placeholder="Buscar arquivo..."
+           style="background:#1a2035;border:1px solid #2a3050;color:#e2e8f0;outline:none;width:220px;">
+    <span class="kbd-hint xs-d-none">Ctrl+K</span>
+</nav>
+
+<section class="p-80-tb xs-p-50-tb f-items-center text-center ps-relative" id="hero">
+    <div class="hero-bg"></div>
+    <div class="w-800px xs-w-100 xs-p-15-lr">
+        <div class="d-flex f-items-center f-justify-center f-gap-8 m-25-b wow fadeIn">
+            <div class="live-dot"></div>
+            <span class="fs-3 fw-500 text-uppercase ls-3" style="color:#64748b;">19/03/2026 17:35</span>
+        </div>
+        <h1 class="fs-16 xs-fs-14 fw-900 lh-1-1 m-10-b wow fadeInUp hero-title">SI &mdash; 1 Ano</h1>
+        <p class="fs-9 xs-fs-7 fw-400 m-40-b wow fadeInUp" data-wow-delay="0.1s" style="color:#64748b;">
+            Sistemas de Informacao &mdash; Dashboard de Progresso
+        </p>
+        <div class="d-flex f-justify-center f-gap-15 xs-f-gap-8 f-wrap wow fadeInUp" data-wow-delay="0.2s">
+            <div class="stat-box border-rd-12 p-15-tb p-25-lr xs-p-10-all text-center">
+                <span class="fs-13 xs-fs-11 fw-800 d-block lh-1-1" style="color:#a78bfa;">13</span>
+                <span class="fs-2 fw-600 text-uppercase ls-2 m-3-t d-block" style="color:#475569;">Arquivos</span>
+            </div>
+            <div class="stat-box border-rd-12 p-15-tb p-25-lr xs-p-10-all text-center">
+                <span class="fs-13 xs-fs-11 fw-800 d-block lh-1-1" style="color:#38bdf8;">9</span>
+                <span class="fs-2 fw-600 text-uppercase ls-2 m-3-t d-block" style="color:#475569;">Codigos</span>
+            </div>
+        </div>
+        <div class="m-40-t wow fadeIn" data-wow-delay="0.4s">
+            <span class="iccon-chevron-down-1 fs-10 animated infinite pulse" style="color:#1e293b;"></span>
+        </div>
+    </div>
+</section>
+
+<main class="container p-30-tb xs-p-15-tb" id="content">
+    <div class="text-center m-40-b xs-m-20-b">
+        <h2 class="fs-12 xs-fs-10 fw-800 m-8-b wow fadeInUp" style="color:#f1f5f9;">Disciplinas & Arquivos</h2>
+        <p class="fs-7 xs-fs-5 wow fadeInUp" data-wow-delay="0.1s" style="color:#475569;">Clique em qualquer arquivo de codigo para visualizar</p>
+    </div>
+    <div class="border-rd-14" style="background:#0f1525;border:1px solid rgba(255,255,255,0.04);overflow:hidden;">
+        <section class="disc-section" id="disc-APPC" data-disc="APPC"
+     style="border-bottom:1px solid rgba(255,255,255,0.04);">
+    <div class="disc-header d-flex f-items-center f-justify-between f-gap-15 p-20-tb p-25-lr xs-p-15-all cursor-pointer"
+         data-toggle="disc-APPC-body">
+        <div class="d-flex f-items-center f-gap-15">
+            <div class="d-flex f-items-center f-justify-center border-rd-10" style="width:44px;height:44px;background:#a78bfa15;">
+                <span class="iccon-terminal-1 fs-10" style="color:#a78bfa;"></span>
+            </div>
+            <div>
+                <span class="fs-8 fw-700" style="color:#f1f5f9;">APPC</span>
+                <span class="fs-3 d-block xs-d-none" style="color:#64748b;">Algoritmos de Programacao, Projetos e Computacao</span>
+            </div>
+        </div>
+        <div class="d-flex f-items-center f-gap-15">
+            <div class="d-flex f-gap-15 xs-f-gap-10 xs-d-none">
+                <span class="fs-3 fw-500" style="color:#475569;">7 arquivos</span>
+                <span class="fs-3 fw-500" style="color:#475569;">3 aulas</span>
+                <span class="fs-3 fw-500" style="color:#475569;">6 codigos</span>
+            </div>
+            <span class="fs-4 fw-600 xs-d-block d-none" style="color:#a78bfa;">7</span>
+            <span class="chevron iccon-chevron-down-1 fs-7" style="color:#475569;"></span>
+        </div>
+    </div>
+    <div class="disc-body  p-10-lr p-15-b xs-p-5-lr" id="disc-APPC-body">
+        <div class="d-flex f-items-center f-justify-end f-gap-10 m-10-b p-5-lr">
+            <button class="expand-all-btn fs-2 fw-500 cursor-pointer p-4-tb p-10-lr border-rd-4"
+                    data-disc-body="disc-APPC-body"
+                    style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#64748b;">
+                Expandir tudo
+            </button>
+        </div>
+        <div class="aula-section m-5-b">
+    <div class="aula-header d-flex f-items-center f-gap-10 p-10-tb p-15-lr border-rd-6 cursor-pointer"
+         data-toggle="appc-aula-09-03-2026-body">
+        <span class="iccon-calendar-1 fs-5" style="color:#a78bfa;"></span>
+        <span class="fs-5 fw-600" style="color:#e2e8f0;">09 Mar 2026</span>
+        <span class="fs-2" style="color:#64748b;">4 arquivos &bull; 3 com codigo</span>
+        <span class="chevron iccon-chevron-down-1 fs-4 m-auto-l" style="color:#475569;"></span>
+    </div>
+    <div class="aula-body d-none p-5-l" id="appc-aula-09-03-2026-body" style="border-left:2px solid #a78bfa22;">
+        <div class="file-row d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="tabela ascii.png" data-ext=".png" data-disc="APPC"
+      >
+    <span class="dot" style="background:#a855f7;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">Tabela Ascii.png</span>
+    
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#a855f718;color:#a855f7;">Imagem</span>
+    
+</div>
+<div class="file-row cursor-pointer d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="igualdade.py" data-ext=".py" data-disc="APPC"
+     data-code-id="appc-aula-09-03-2026-igualdade-py" >
+    <span class="dot" style="background:#3b82f6;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">igualdade.py</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">41 linhas</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#3b82f618;color:#3b82f6;">Python</span>
+    <span class="iccon-eye-1 fs-5 view-icon" style="color:#475569;"></span>
+</div>
+<div class="file-row cursor-pointer d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="logico_ou_booleano.py" data-ext=".py" data-disc="APPC"
+     data-code-id="appc-aula-09-03-2026-logico-ou-booleano-py" >
+    <span class="dot" style="background:#3b82f6;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">logico_ou_booleano.py</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">15 linhas</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#3b82f618;color:#3b82f6;">Python</span>
+    <span class="iccon-eye-1 fs-5 view-icon" style="color:#475569;"></span>
+</div>
+<div class="file-row cursor-pointer d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="praticando.py" data-ext=".py" data-disc="APPC"
+     data-code-id="appc-aula-09-03-2026-praticando-py" >
+    <span class="dot" style="background:#3b82f6;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">praticando.py</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">12 linhas</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#3b82f618;color:#3b82f6;">Python</span>
+    <span class="iccon-eye-1 fs-5 view-icon" style="color:#475569;"></span>
+</div>
+    </div>
+</div>
+<div class="aula-section m-5-b">
+    <div class="aula-header d-flex f-items-center f-gap-10 p-10-tb p-15-lr border-rd-6 cursor-pointer"
+         data-toggle="appc-aula-05-03-2026-body">
+        <span class="iccon-calendar-1 fs-5" style="color:#a78bfa;"></span>
+        <span class="fs-5 fw-600" style="color:#e2e8f0;">05 Mar 2026</span>
+        <span class="fs-2" style="color:#64748b;">1 arquivo &bull; 1 com codigo</span>
+        <span class="chevron iccon-chevron-down-1 fs-4 m-auto-l" style="color:#475569;"></span>
+    </div>
+    <div class="aula-body d-none p-5-l" id="appc-aula-05-03-2026-body" style="border-left:2px solid #a78bfa22;">
+        <div class="file-row cursor-pointer d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="classificar_triangulo.py" data-ext=".py" data-disc="APPC"
+     data-code-id="appc-aula-05-03-2026-classificar-triangulo-py" >
+    <span class="dot" style="background:#3b82f6;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">classificar_triangulo.py</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">28 linhas</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#3b82f618;color:#3b82f6;">Python</span>
+    <span class="iccon-eye-1 fs-5 view-icon" style="color:#475569;"></span>
+</div>
+    </div>
+</div>
+<div class="aula-section m-5-b">
+    <div class="aula-header d-flex f-items-center f-gap-10 p-10-tb p-15-lr border-rd-6 cursor-pointer"
+         data-toggle="appc-aula-02-03-2026-body">
+        <span class="iccon-calendar-1 fs-5" style="color:#a78bfa;"></span>
+        <span class="fs-5 fw-600" style="color:#e2e8f0;">02 Mar 2026</span>
+        <span class="fs-2" style="color:#64748b;">2 arquivos &bull; 2 com codigo</span>
+        <span class="chevron iccon-chevron-down-1 fs-4 m-auto-l" style="color:#475569;"></span>
+    </div>
+    <div class="aula-body d-none p-5-l" id="appc-aula-02-03-2026-body" style="border-left:2px solid #a78bfa22;">
+        <div class="file-row cursor-pointer d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="area_quadrado.py" data-ext=".py" data-disc="APPC"
+     data-code-id="appc-aula-02-03-2026-area-quadrado-py" >
+    <span class="dot" style="background:#3b82f6;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">area_quadrado.py</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">45 linhas</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#3b82f618;color:#3b82f6;">Python</span>
+    <span class="iccon-eye-1 fs-5 view-icon" style="color:#475569;"></span>
+</div>
+<div class="file-row cursor-pointer d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="celsius_para_fahrenheit.py" data-ext=".py" data-disc="APPC"
+     data-code-id="appc-aula-02-03-2026-celsius-para-fahrenheit-py" >
+    <span class="dot" style="background:#3b82f6;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">celsius_para_fahrenheit.py</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">10 linhas</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#3b82f618;color:#3b82f6;">Python</span>
+    <span class="iccon-eye-1 fs-5 view-icon" style="color:#475569;"></span>
+</div>
+    </div>
+</div>
+    </div>
+</section>
+<section class="disc-section" id="disc-ExpBD" data-disc="ExpBD"
+     style="border-bottom:1px solid rgba(255,255,255,0.04);">
+    <div class="disc-header d-flex f-items-center f-justify-between f-gap-15 p-20-tb p-25-lr xs-p-15-all cursor-pointer"
+         data-toggle="disc-ExpBD-body">
+        <div class="d-flex f-items-center f-gap-15">
+            <div class="d-flex f-items-center f-justify-center border-rd-10" style="width:44px;height:44px;background:#34d39915;">
+                <span class="iccon-database-1 fs-10" style="color:#34d399;"></span>
+            </div>
+            <div>
+                <span class="fs-8 fw-700" style="color:#f1f5f9;">ExpBD</span>
+                <span class="fs-3 d-block xs-d-none" style="color:#64748b;">Experimentos Praticos de Banco de Dados</span>
+            </div>
+        </div>
+        <div class="d-flex f-items-center f-gap-15">
+            <div class="d-flex f-gap-15 xs-f-gap-10 xs-d-none">
+                <span class="fs-3 fw-500" style="color:#475569;">5 arquivos</span>
+                <span class="fs-3 fw-500" style="color:#475569;">2 aulas</span>
+                <span class="fs-3 fw-500" style="color:#475569;">3 codigos</span>
+            </div>
+            <span class="fs-4 fw-600 xs-d-block d-none" style="color:#34d399;">5</span>
+            <span class="chevron iccon-chevron-down-1 fs-7" style="color:#475569;"></span>
+        </div>
+    </div>
+    <div class="disc-body  p-10-lr p-15-b xs-p-5-lr" id="disc-ExpBD-body">
+        <div class="d-flex f-items-center f-justify-end f-gap-10 m-10-b p-5-lr">
+            <button class="expand-all-btn fs-2 fw-500 cursor-pointer p-4-tb p-10-lr border-rd-4"
+                    data-disc-body="disc-ExpBD-body"
+                    style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#64748b;">
+                Expandir tudo
+            </button>
+        </div>
+        <div class="aula-section m-5-b">
+    <div class="aula-header d-flex f-items-center f-gap-10 p-10-tb p-15-lr border-rd-6 cursor-pointer"
+         data-toggle="expbd-aula-17-03-2026-body">
+        <span class="iccon-calendar-1 fs-5" style="color:#34d399;"></span>
+        <span class="fs-5 fw-600" style="color:#e2e8f0;">17 Mar 2026</span>
+        <span class="fs-2" style="color:#64748b;">4 arquivos &bull; 2 com codigo</span>
+        <span class="chevron iccon-chevron-down-1 fs-4 m-auto-l" style="color:#475569;"></span>
+    </div>
+    <div class="aula-body d-none p-5-l" id="expbd-aula-17-03-2026-body" style="border-left:2px solid #34d39922;">
+        <div class="file-row d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="expbd-aula04-sql-parte02-exercicios_para_praticar.pdf" data-ext=".pdf" data-disc="ExpBD"
+      >
+    <span class="dot" style="background:#ef4444;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">ExpBD-Aula04-SQL-Parte02-Exercicios_para_Praticar.pdf</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">documento</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#ef444418;color:#ef4444;">PDF</span>
+    
+</div>
+<div class="file-row cursor-pointer d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="expbd-aula05-sql-parte02-scripts-exemplo.sql" data-ext=".sql" data-disc="ExpBD"
+     data-code-id="expbd-aula-17-03-2026-expbd-aula05-sql-parte02-scripts-exemplo-sql" >
+    <span class="dot" style="background:#22c55e;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">ExpBD-Aula05-SQL-Parte02-SCRIPTS-exemplo.sql</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">162 linhas</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#22c55e18;color:#22c55e;">SQL</span>
+    <span class="iccon-eye-1 fs-5 view-icon" style="color:#475569;"></span>
+</div>
+<div class="file-row d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="expbd-aula05-sql-parte02.pdf" data-ext=".pdf" data-disc="ExpBD"
+      >
+    <span class="dot" style="background:#ef4444;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">ExpBD-Aula05-SQL-Parte02.pdf</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">documento</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#ef444418;color:#ef4444;">PDF</span>
+    
+</div>
+<div class="file-row cursor-pointer d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="praticar2.sql" data-ext=".sql" data-disc="ExpBD"
+     data-code-id="expbd-aula-17-03-2026-praticar2-sql" >
+    <span class="dot" style="background:#22c55e;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">praticar2.sql</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">126 linhas</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#22c55e18;color:#22c55e;">SQL</span>
+    <span class="iccon-eye-1 fs-5 view-icon" style="color:#475569;"></span>
+</div>
+    </div>
+</div>
+<div class="aula-section m-5-b">
+    <div class="aula-header d-flex f-items-center f-gap-10 p-10-tb p-15-lr border-rd-6 cursor-pointer"
+         data-toggle="expbd-aula-10-03-2026-body">
+        <span class="iccon-calendar-1 fs-5" style="color:#34d399;"></span>
+        <span class="fs-5 fw-600" style="color:#e2e8f0;">10 Mar 2026</span>
+        <span class="fs-2" style="color:#64748b;">1 arquivo &bull; 1 com codigo</span>
+        <span class="chevron iccon-chevron-down-1 fs-4 m-auto-l" style="color:#475569;"></span>
+    </div>
+    <div class="aula-body d-none p-5-l" id="expbd-aula-10-03-2026-body" style="border-left:2px solid #34d39922;">
+        <div class="file-row cursor-pointer d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="praticar1.sql" data-ext=".sql" data-disc="ExpBD"
+     data-code-id="expbd-aula-10-03-2026-praticar1-sql" >
+    <span class="dot" style="background:#22c55e;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">Praticar1.sql</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">42 linhas</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#22c55e18;color:#22c55e;">SQL</span>
+    <span class="iccon-eye-1 fs-5 view-icon" style="color:#475569;"></span>
+</div>
+    </div>
+</div>
+    </div>
+</section>
+<section class="disc-section" id="disc-Projetos" data-disc="Projetos"
+     style="border-bottom:1px solid rgba(255,255,255,0.04);">
+    <div class="disc-header d-flex f-items-center f-justify-between f-gap-15 p-20-tb p-25-lr xs-p-15-all cursor-pointer"
+         data-toggle="disc-Projetos-body">
+        <div class="d-flex f-items-center f-gap-15">
+            <div class="d-flex f-items-center f-justify-center border-rd-10" style="width:44px;height:44px;background:#fb923c15;">
+                <span class="iccon-rocket-1 fs-10" style="color:#fb923c;"></span>
+            </div>
+            <div>
+                <span class="fs-8 fw-700" style="color:#f1f5f9;">Projetos</span>
+                <span class="fs-3 d-block xs-d-none" style="color:#64748b;">Projetos Especiais</span>
+            </div>
+        </div>
+        <div class="d-flex f-items-center f-gap-15">
+            <div class="d-flex f-gap-15 xs-f-gap-10 xs-d-none">
+                <span class="fs-3 fw-500" style="color:#475569;">1 projeto</span>
+            </div>
+            <span class="fs-4 fw-600 xs-d-block d-none" style="color:#fb923c;">1</span>
+            <span class="chevron iccon-chevron-down-1 fs-7" style="color:#475569;"></span>
+        </div>
+    </div>
+    <div class="disc-body  p-10-lr p-15-b xs-p-5-lr" id="disc-Projetos-body">
+        <div class="file-row cursor-pointer d-flex f-items-center f-gap-10 p-8-tb p-12-lr border-rd-6"
+     data-fname="cassino.sb3" data-ext=".sb3" data-disc="Projetos"
+      data-ext-link="https://scratch.mit.edu/projects/1293177850">
+    <span class="dot" style="background:#f59e0b;"></span>
+    <span class="fs-5 fw-500 f-grow-1 fname-text" style="color:#c9d1d9;">Cassino.sb3</span>
+    <span class="fs-2 xs-d-none" style="color:#484f58;">projeto interativo</span>
+    <span class="fs-2 fw-600 p-2-tb p-8-lr border-rd-4 xs-d-none" style="background:#f59e0b18;color:#f59e0b;">Scratch</span>
+    <span class="iccon-external-1 fs-5 view-icon" style="color:#475569;"></span>
+</div>
+    </div>
+</section>
+    </div>
+</main>
+
+<button class="scroll-top" id="scroll-top-btn" aria-label="Voltar ao topo">
+    <span class="iccon-chevron-up-1"></span>
+</button>
+
+<footer class="p-25-tb text-center" style="border-top:1px solid rgba(255,255,255,0.04);">
+    <p class="fs-3" style="color:#334155;">
+        <strong>13</strong> arquivos &bull; <strong>9</strong> com codigo &bull;
+        <code style="background:#1e293b;padding:2px 8px;border-radius:4px;font-size:11px;">python gerar_landing.py</code>
+    </p>
+</footer>
+
+<div data-modal="code-viewer" class="modal-dialog" aria-hidden="true">
+    <div class="dialog-content">
+        <div class="dialog-backdrop" data-modal-hide></div>
+        <div class="dialog-inline w-900px xs-w-100">
+            <button class="dialog-close" data-modal-hide aria-label="Fechar">
+                <span class="iccon-close-1"></span>
+            </button>
+            <div class="modal-popup border-rd-12" style="background:#0d1117;padding:0;overflow:hidden;" id="code-modal-inner">
+                <div class="p-40-all text-center" style="color:#484f58;">
+                    <span class="iccon-file-1 fs-14 d-block m-10-b"></span>
+                    <span class="fs-5">Selecione um arquivo</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>var FILE_DATA={"appc-aula-02-03-2026-area-quadrado-py": {"name": "area_quadrado.py", "lang": "Python", "color": "#3b82f6", "lines": 45, "truncated": false, "content": "# VERSION 1\n'''\nprint ('Programa para calcular areas de quadrados\\n')\n\nLado_Texto=input('Digite quanto mede em cm o lado do quadrado desejado: ')\n\nLado_Numero = float(Lado_Texto)\n\narea = Lado_Numero * Lado_Numero\n\nprint('\\nA area do quadrado indicado mede', area, 'centimetro quadrado')\n\nprint('\\nPrograma encerrado com sucesso')\n'''\n\n\n# VERSION 2\n'''\nprint ('Programa para calcular areas de quadrados\\n')\n\nLado_Numero=float(input(\"Digite quanto mede em cm o lado do quadrado desejado:\"))\n\narea = Lado_Numero * Lado_Numero\n\nprint('\\nA area do quadrado indicado mede', area, 'centimetro quadrado')\n\nprint('\\nPrograma encerrado com sucesso')\n'''\n\n\n# VERSION 3\nprint ('Programa para calcular areas de quadrados\\n')\n\nprint(\"Digite quanto mede em cm o lado do quadrado desejado:\",end=\"\")\nLado_Numero=float(input())\n\narea = Lado_Numero * Lado_Numero\n\nprint('\\nA area do quadrado indicado mede', area, 'centimetro quadrado',sep=\"\")\n\nprint('\\nPrograma encerrado com sucesso')\n\n\n# Atividade para aprender mais: Como se converte graus celsius em graus firenrite\n"}, "appc-aula-02-03-2026-celsius-para-fahrenheit-py": {"name": "celsius_para_fahrenheit.py", "lang": "Python", "color": "#3b82f6", "lines": 10, "truncated": false, "content": "print(\"Programa para converter graus Celsius em graus Fahrenheit\\n\")\n\ncelsius = float(input(\"Digite a temperatura em Celsius: \"))\n\nfahrenheit = (celsius * 9/5) + 32\n\nprint(f\"\\n{celsius}°C equivale a {fahrenheit}°F\")\n\nprint(\"\\nPrograma encerrado com sucesso\")\n"}, "appc-aula-05-03-2026-classificar-triangulo-py": {"name": "classificar_triangulo.py", "lang": "Python", "color": "#3b82f6", "lines": 28, "truncated": false, "content": "print(\"Programa para classificar triangulo com base nos lados\")\n\nlado1_como_texto = input(\"Digite quanto mede em cm o 1° lado: \")\nlado1 = float(lado1_como_texto)\n\nlado2 = float(input(\"Digite quanto mede em cm o 2° lado: \"))\n\nprint(\"Digite quanto mede em cm o 3° lado\")\nlado3 = float(input())\n\nif lado1 == lado2 and lado1 == lado3:\n    print(\"Seu triangulo e um equilatero\")\n\nelif lado1 == lado2 or lado1 == lado3 or lado2 == lado3:\n    print(\"Seu triangulo e um isosceles\")\n\nelse:\n    print(\"Seu triangulo e um escaleno\")\n\nprint(\"Programa encerrado\")\n\n\n'''\nEstilos e formatos:\n\"teste1_com_stilo\" = \"Snake case\"\n\"teste2ComStilo\" = \"Camel case\"\n'''\n"}, "appc-aula-09-03-2026-igualdade-py": {"name": "igualdade.py", "lang": "Python", "color": "#3b82f6", "lines": 41, "truncated": false, "content": "#Se e maior\nprint(9>5) #Verdadeiro\nprint(9>15) #Falso\n\n\n#Se e maior ou igual\nprint(9>=9) #Verdadeiro\nprint(9>=10) #Falso\n\n\n#Se e menor\nprint(9<10) #Verdadeiro\nprint(15<10) #False\n\n\n#Se e menor ou igual\nprint(9<=10) #Verdadeiro\nprint(10<=10) #Verdadeiro\nprint(15<=10) #Falso\n\n\n#Se e igual\nprint(9==10) #Falso\nprint(10==10) #Verdadeiro\n\n\n#Se e diferente\nprint(9!=10) #Verdadeiro\nprint(10!=10) #Falso\n\n\n'''Ordem alfabetica ''' \n\nprint(\"Andre\"<\"Jose\") #Verdadeiro\nprint(\"Andre\">\"Jose\") #Falso\nprint(\"Andre\"<=\"Jose\") #Verdadeiro\n\n\n\n\n"}, "appc-aula-09-03-2026-logico-ou-booleano-py": {"name": "logico_ou_booleano.py", "lang": "Python", "color": "#3b82f6", "lines": 15, "truncated": false, "content": "Print(True) #Verdadeiro\nPrint(False) #falso\n\n\nPrint(True and True) #Verdadeiro\nPrint(True and False) or (False and True) #Falso\nPrint(False and False) #Falso\n\nPrint(True or False) #Verdadeiro ou Falso \n\nPrint(not True) #false\n\nPrint(not false) #true\n\n"}, "appc-aula-09-03-2026-praticando-py": {"name": "praticando.py", "lang": "Python", "color": "#3b82f6", "lines": 12, "truncated": false, "content": "nota=9.5\nfrequencia=0.85\nprint(nota>=5 and frequencia>=0.75) #aprovado\n\nnota=4.5\nfrequencia=0.55\nprint(nota<5 or frequencia<0.75) #Reprovado\n\nnota=4.5\nfrequencia=0.25\nprint(nota<5 or frequencia<0.75) #Reprovado\n"}, "expbd-aula-10-03-2026-praticar1-sql": {"name": "Praticar1.sql", "lang": "SQL", "color": "#22c55e", "lines": 42, "truncated": false, "content": "create database Praticar1;\n\ncreate table AUTORES (\n    id_autor int,\n    nome varchar(100),\n    pais varchar(50),\n    ano_nascimento int\n);\ncreate table LIVROS (\n\tid_livro int,\n    titulo varchar(150),\n    genero varchar(50),\n    ano_publicacao int,\n    id_autor int\n);\ncreate table LEITORES  (\n\tid_leitor int,\n    nome varchar(100),\n\temail varchar(100),\n\ttelefone varchar(20)\n);\ncreate table EMPRESTIMOS (\n\tid_emprestimo int,\n\tid_leitor int,\n\tid_livro int,\n\tdata_emprestimo date,\n\tdata_devolucao date\n);\n\nALTER TABLE LIVROS ADD quantidade_estoque int;\nALTER TABLE LEITORES ADD data_cadastro date;\nALTER TABLE LEITORES MODIFY telefone VARCHAR(30);\nALTER TABLE AUTORES DROP COLUMN pais;\nALTER TABLE LIVROS ADD editora VARCHAR(100);\n\nDROP TABLE EMPRESTIMOS;\nDROP TABLE LIVROS;\nDROP TABLE AUTORES;\n\n\n\n"}, "expbd-aula-17-03-2026-expbd-aula05-sql-parte02-scripts-exemplo-sql": {"name": "ExpBD-Aula05-SQL-Parte02-SCRIPTS-exemplo.sql", "lang": "SQL", "color": "#22c55e", "lines": 162, "truncated": false, "content": "######################################\n# CRIANDO O ESQUEMA / BASE DE DADOS: #\n######################################\n\nCREATE DATABASE dbexemplo\nDEFAULT CHARACTER SET utf8mb4; \n\nUSE dbexemplo;\n\nCREATE TABLE dbexemplo.departamento(\n\tcodigo int not null, \n\tnome varchar(50) not null,\n    PRIMARY KEY (codigo)\n) DEFAULT CHARSET = utf8mb4;\n\nCREATE TABLE dbexemplo.funcionario(\n\tcodigo int not null auto_increment, \n\tnome varchar(50) not null,\n\tendereco varchar(150) not null,\n    sexo enum('F', 'M'),\n    peso decimal(4,2),\n    altura decimal(3,2),\n    nacionalidade varchar(20) default 'Brasil',\n\tPRIMARY KEY (codigo)\n) DEFAULT CHARSET = utf8mb4;\n\n########################\n# ALTERANDO O ESQUEMA: #\n########################\n\nALTER TABLE dbexemplo.funcionario\nADD COLUMN (data_nascimento date);\n\nALTER TABLE dbexemplo.funcionario\nDROP COLUMN endereco;\n\n###############################\n# INSERINDO DADOS NO ESQUEMA: #\n###############################\n\nINSERT INTO dbexemplo.funcionario\n(codigo, nome, sexo, peso, altura, nacionalidade, data_nascimento) \nVALUES \n('1000', 'Fulano da Silva', 'M',  '80.0', '1.82', 'USA', '1979-04-19');\n\nINSERT INTO dbexemplo.funcionario\n(nome, sexo, peso, altura, nacionalidade, data_nascimento) \nVALUES \n('Ciclano da Silva', 'M',  '82.0', '1.80', 'Peru', '1983-04-19');\n\nINSERT INTO dbexemplo.funcionario\n(codigo, nome, sexo, peso, altura, nacionalidade, data_nascimento) \nVALUES \n(DEFAULT, 'Maria da Silva', 'F',  '62.0', '1.60', 'Brasil', '1985-01-19');\n\nINSERT INTO dbexemplo.funcionario\nVALUES \n(DEFAULT, 'Silvia da Silva', 'F',  '52.0', '1.50', 'Brasil', '1990-03-19');\n\nINSERT INTO dbexemplo.funcionario\n(codigo, nome, sexo, peso, altura, nacionalidade, data_nascimento) \nVALUES \n(DEFAULT, 'Pedro da Silva', 'M',  '92.0', '1.85', 'Brasil', '1991-03-19'),\n(DEFAULT, 'Joaquim da Silva', 'M',  '99.0', '1.90', 'Brasil', '1992-03-19'),\n(DEFAULT, 'João da Silva', 'M',  '80.0', '1.80', 'Brasil', '1993-03-19');\n\n####################################\n# DESCREVENDO ESTRUTRURA DA TABELA #\n####################################\n\nDESCRIBE dbexemplo.funcionario;\n\n###############################\n# CONSULTANDO DADOS DA TABELA #\n###############################\n\nSELECT * FROM dbexemplo.funcionario;\n\n######################################################\n# INSERINDO NOVA COLUNA NA TABELA (INSERINDO NO FIM) #\n######################################################\n\nALTER TABLE dbexemplo.funcionario\nADD COLUMN profissao varchar(10);\n\nSELECT * FROM dbexemplo.funcionario;\n\nALTER TABLE dbexemplo.funcionario\nDROP COLUMN profissao;\n\nSELECT * FROM dbexemplo.funcionario;\n\n###############################################################\n# INSERINDO NOVA COLUNA NA TABELA (INSERINDO APÓS UMA COLUNA) #\n###############################################################\n\nALTER TABLE dbexemplo.funcionario\nADD COLUMN profissao varchar(10) AFTER nome;\n\nSELECT * FROM dbexemplo.funcionario;\n\nALTER TABLE dbexemplo.funcionario\nDROP COLUMN profissao;\n\nSELECT * FROM dbexemplo.funcionario;\n\n#########################################################\n# INSERINDO NOVA COLUNA NA TABELA (INSERINDO NO INÍCIO) #\n#########################################################\n\nALTER TABLE dbexemplo.funcionario\nADD COLUMN profissao varchar(10) FIRST;\n\nSELECT * FROM dbexemplo.funcionario;\n\nALTER TABLE dbexemplo.funcionario\nDROP COLUMN profissao;\n\nSELECT * FROM dbexemplo.funcionario;\n\n#########################################################\n# MODIFICANDO DEFINIÇÃO DA COLUNA DA TABELA             #\n#########################################################\n\nALTER TABLE dbexemplo.funcionario\nMODIFY COLUMN peso decimal(5,2);\n\nINSERT INTO dbexemplo.funcionario\nVALUES \n(DEFAULT, 'Gerson da Silva', 'M',  '120.0', '1.80', 'Brasil', '1990-03-19');\n\n\n###############################\n# INSERINDO DADOS NO ESQUEMA: #\n###############################\n\nUPDATE `dbexemplo`.`funcionario` SET `data_nascimento` = '1981-03-19' WHERE (`codigo` = '1000');\n\nUPDATE `dbexemplo`.`funcionario` SET `nome` = 'Maria', `sexo` = 'F'  WHERE (`codigo` = '1001');\n\nUPDATE `dbexemplo`.`funcionario` SET `codigo` = '1000099'  WHERE (`codigo` = '100');\n\n#########################################################\n# EXCLUINDO LINHAS DA TABELA                            #\n#########################################################\n\nDELETE FROM dbexemplo.funcionario\nWHERE codigo = '1001';\n\nSELECT * FROM dbexemplo.funcionario;\n\nSELECT * FROM dbexemplo.funcionario WHERE peso <= '80.0' AND sexo = 'F';\n\n\n\n\n\n\n\n\n\n"}, "expbd-aula-17-03-2026-praticar2-sql": {"name": "praticar2.sql", "lang": "SQL", "color": "#22c55e", "lines": 126, "truncated": false, "content": "create database praticar2;\n\n# Exercício 1 – Cadastro de Alunos\ncreate table ALUNOS (\n id_aluno int primary key,\n nome varchar(100),\n idade int,\n cidade varchar(50)\n);\n\nINSERT INTO ALUNOS (id_aluno, nome, idade, cidade) VALUES\n(1, 'pedrinho', 12, 'São Paulo'),\n(2, 'joãozinho', 19, 'Campinas'),\n(3, 'henrique', 18, 'Pedreira');\n\nUPDATE ALUNOS\nSET cidade = 'Rio de Janeiro'\nWHERE id_aluno = 1;\n\nDELETE FROM ALUNOS\nWHERE idade < 18;\n\nSELECT * FROM ALUNOS;\n\n\n# Exercício 2 – Cadastro de Produtos\n\ncreate table PRODUTOS(\n\tid_produto int primary key,\n    nome_produto varchar(100),\n    preco float,\n    estoque int\n);\n\nINSERT INTO PRODUTOS (id_produto, nome_produto, preco, estoque) VALUES\n(1, 'sabão em pó', 29.00, 10),\n(2, 'traquinas', 7.00, 2000),\n(3, 'monitor', 8000.00, 0),\n(4, 'energetico', 20.00, 70);\n\nUPDATE PRODUTOS\nSET preco = preco * 1.10\nWHERE id_produto = 1;\n\nDELETE FROM PRODUTOS\nWHERE estoque = 0;\n\nSELECT * FROM PRODUTOS;\n\n\n# Exercício 3 – Cadastro de Funcionários\n\ncreate table FUNCIONARIOS (\n\tid_funcionario int primary key,\n    nome varchar(100),\n    cargo varchar(50),\n    salario float\n);\n\nINSERT INTO FUNCIONARIOS (id_funcionario, nome, cargo, salario) VALUES\n(1, 'harthur', 'Pedreiro', 1500),\n(2, 'leandrinho', 'Cozinheiro', 2500),\n(3, 'davizinho', 'Padeiro', 1800),\n(4, 'henzinho', 'Peixeiro', 3000),\n(5, 'rodriguinho', 'Analista', 3500);\n\nUPDATE FUNCIONARIOS\nSET salario = salario + 500\nWHERE cargo = 'Analista';\n\nDELETE FROM FUNCIONARIOS\nWHERE salario < 2000;\n\nSELECT * FROM FUNCIONARIOS;\n\n\n# Exercício 4 – Cadastro de Livros\n\ncreate table LIVROS (\n\tid_livro int primary key,\n    titulo varchar(150),\n    autor varchar(100),\n    ano_publicacao int\n);\n\nINSERT INTO LIVROS (id_livro, titulo, autor, ano_publicacao) VALUES\n(1, 'Dom Casmurro', 'Machado de Assis', 1899),\n(2, 'O Alquimista', 'Paulo Coelho', 2005),\n(3, 'Harry Potter', 'J.K. Rowling', 2001),\n(4, 'O Pequeno Príncipe', 'Antoine de Saint-Exupéry', 1943);\n\nUPDATE LIVROS\nSET ano_publicacao = 2010\nWHERE id_livro = 2;\n\nDELETE FROM LIVROS\nWHERE ano_publicacao < 2000;\n\nSELECT * FROM LIVROS;\n\n\n# Exercício 5 – Cadastro de Clientes\n\ncreate table CLIENTES (\n\tid_cliente int primary key,\n    nome varchar(100),\n    email varchar(100),\n    telefone varchar(20)\n);\n\nINSERT INTO CLIENTES (id_cliente, nome, email, telefone) VALUES\n(1, 'Carlos Silva', 'carlos@email.com', '11999990001'),\n(2, 'Ana Souza', 'ana@email.com', '11999990002'),\n(3, 'Bruno Lima', 'bruno@email.com', '11999990003'),\n(4, 'Julia Santos', 'julia@email.com', '11999990004'),\n(5, 'Rafael Costa', 'emailinvalido', '11999990005');\n\nUPDATE CLIENTES\nSET telefone = '11988887777'\nWHERE id_cliente = 1;\n\nDELETE FROM CLIENTES\nWHERE email NOT LIKE '%@%';\n\nSELECT * FROM CLIENTES;\n"}};</script>
+<script src="https://cdn.squeleton.dev/squeleton-scripts.v4.min.js"></script>
+<script>
+(function(){
+    var nav = document.getElementById('main-nav');
+    var hero = document.getElementById('hero');
+
+    // ── Collapse toggle ──
+    document.addEventListener('click', function(e){
+        var toggler = e.target.closest('[data-toggle]');
+        if(!toggler) return;
+        var id = toggler.getAttribute('data-toggle');
+        var el = document.getElementById(id);
+        if(!el) return;
+        el.classList.toggle('d-none');
+        var ch = toggler.querySelector('.chevron');
+        if(ch) ch.style.transform = el.classList.contains('d-none') ? '' : 'rotate(180deg)';
+    });
+
+    // ── Expand all within a discipline ──
+    document.addEventListener('click', function(e){
+        var btn = e.target.closest('.expand-all-btn');
+        if(!btn) return;
+        e.stopPropagation();
+        var bodyId = btn.getAttribute('data-disc-body');
+        var body = document.getElementById(bodyId);
+        if(!body) return;
+        var allBodies = body.querySelectorAll('.aula-body');
+        var allHidden = Array.from(allBodies).every(function(b){ return b.classList.contains('d-none'); });
+        allBodies.forEach(function(b){
+            if(allHidden) b.classList.remove('d-none');
+            else b.classList.add('d-none');
+        });
+        body.querySelectorAll('.aula-header .chevron').forEach(function(ch){
+            ch.style.transform = allHidden ? 'rotate(180deg)' : '';
+        });
+        btn.textContent = allHidden ? 'Colapsar tudo' : 'Expandir tudo';
+    });
+
+    // ── Filter pills ──
+    var pills = document.querySelectorAll('.filter-pill');
+    var sections = document.querySelectorAll('.disc-section');
+    pills.forEach(function(pill){
+        pill.addEventListener('click', function(){
+            pills.forEach(function(p){ p.classList.remove('active'); });
+            pill.classList.add('active');
+            var filter = pill.getAttribute('data-filter');
+            sections.forEach(function(s){
+                if(filter === 'all' || s.getAttribute('data-disc') === filter){
+                    s.classList.remove('d-none');
+                } else {
+                    s.classList.add('d-none');
+                }
+            });
+        });
+    });
+
+    // ── Nav disc links (scroll + expand with offset) ──
+    document.querySelectorAll('.nav-disc-link').forEach(function(link){
+        link.addEventListener('click', function(e){
+            e.preventDefault();
+            var disc = link.getAttribute('data-nav-disc');
+            var sec = document.getElementById('disc-' + disc);
+            if(!sec) return;
+            sec.classList.remove('d-none');
+            var body = document.getElementById('disc-' + disc + '-body');
+            if(body) body.classList.remove('d-none');
+            var ch = sec.querySelector('.disc-header .chevron');
+            if(ch) ch.style.transform = 'rotate(180deg)';
+            var offset = nav ? nav.offsetHeight + 10 : 0;
+            var top = sec.getBoundingClientRect().top + window.scrollY - offset;
+            window.scrollTo({top: top, behavior:'smooth'});
+        });
+    });
+
+    // ── Search ──
+    var searchInput = document.getElementById('search-input');
+    var fileRows = document.querySelectorAll('.file-row');
+    var debounceTimer;
+    searchInput.addEventListener('input', function(){
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(doSearch, 200);
+    });
+
+    function doSearch(){
+        var q = searchInput.value.trim().toLowerCase();
+        if(!q){
+            // restore: show all rows, collapse aulas
+            fileRows.forEach(function(r){ r.classList.remove('d-none','search-match'); });
+            document.querySelectorAll('.aula-body').forEach(function(b){ b.classList.add('d-none'); });
+            document.querySelectorAll('.aula-header .chevron').forEach(function(c){ c.style.transform=''; });
+            document.querySelectorAll('.disc-section').forEach(function(s){ s.classList.remove('d-none'); });
+            // re-apply pill filter
+            var activePill = document.querySelector('.filter-pill.active');
+            if(activePill){
+                var f = activePill.getAttribute('data-filter');
+                if(f !== 'all'){
+                    sections.forEach(function(s){
+                        if(s.getAttribute('data-disc') !== f) s.classList.add('d-none');
+                    });
+                }
+            }
+            return;
+        }
+        // show all sections during search
+        sections.forEach(function(s){ s.classList.remove('d-none'); });
+        // expand all disc bodies
+        document.querySelectorAll('.disc-body').forEach(function(b){
+            b.classList.remove('d-none');
+        });
+        document.querySelectorAll('.disc-header .chevron').forEach(function(c){ c.style.transform='rotate(180deg)'; });
+
+        fileRows.forEach(function(r){
+            var fname = r.getAttribute('data-fname') || '';
+            if(fname.indexOf(q) !== -1){
+                r.classList.remove('d-none');
+                r.classList.add('search-match');
+            } else {
+                r.classList.add('d-none');
+                r.classList.remove('search-match');
+            }
+        });
+        // show/hide aula bodies based on visible rows
+        document.querySelectorAll('.aula-section').forEach(function(as){
+            var body = as.querySelector('.aula-body');
+            var hasVisible = body && body.querySelector('.file-row:not(.d-none)');
+            if(hasVisible){
+                body.classList.remove('d-none');
+                var ch = as.querySelector('.aula-header .chevron');
+                if(ch) ch.style.transform = 'rotate(180deg)';
+            } else if(body){
+                body.classList.add('d-none');
+            }
+        });
+        // hide disc sections with no results
+        sections.forEach(function(s){
+            var visibleRow = s.querySelector('.file-row:not(.d-none)');
+            if(!visibleRow) s.classList.add('d-none');
+        });
+    }
+
+    // ── Ctrl+K shortcut ──
+    document.addEventListener('keydown', function(e){
+        if((e.ctrlKey || e.metaKey) && e.key === 'k'){
+            e.preventDefault();
+            searchInput.focus();
+            searchInput.select();
+        }
+        if(e.key === 'Escape' && document.activeElement === searchInput){
+            searchInput.blur();
+            searchInput.value = '';
+            doSearch();
+        }
+    });
+
+    // ── Scroll to top ──
+    var scrollBtn = document.getElementById('scroll-top-btn');
+    if(scrollBtn){
+        window.addEventListener('scroll', function(){
+            scrollBtn.classList.toggle('visible', window.scrollY > 400);
+        });
+        scrollBtn.addEventListener('click', function(){
+            window.scrollTo({top:0, behavior:'smooth'});
+        });
+    }
+
+    // ── External links (e.g. Scratch projects) ──
+    document.addEventListener('click', function(e){
+        var row = e.target.closest('.file-row[data-ext-link]');
+        if(!row) return;
+        if(row.getAttribute('data-code-id')) return; // code viewer takes priority
+        window.open(row.getAttribute('data-ext-link'), '_blank', 'noopener');
+    });
+
+    // ── Code modal ──
+    var modalEl = document.querySelector('[data-modal="code-viewer"]');
+    var modalInner = document.getElementById('code-modal-inner');
+
+    function escHtml(s){
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(s));
+        return d.innerHTML;
+    }
+
+    document.addEventListener('click', function(e){
+        var row = e.target.closest('.file-row[data-code-id]');
+        if(!row) return;
+        var id = row.getAttribute('data-code-id');
+        if(!FILE_DATA || !FILE_DATA[id]) return;
+        var f = FILE_DATA[id];
+
+        var lines = f.content.split('\n');
+        var lineNums = '';
+        for(var i = 1; i <= lines.length; i++) lineNums += '<span>' + i + '</span>';
+
+        var truncBanner = '';
+        if(f.truncated){
+            truncBanner = '<div class="truncation-banner">Mostrando ' + lines.length + ' de ' + f.lines + ' linhas &bull; Abra o arquivo original para ver tudo</div>';
+        }
+
+        modalInner.innerHTML =
+            '<div class="d-flex f-items-center f-gap-10 p-12-tb p-20-lr xs-p-10-all" style="background:#161b22;border-bottom:1px solid #21262d;">' +
+                '<div class="d-flex f-gap-6">' +
+                    '<span id="modal-close-dot" style="width:12px;height:12px;border-radius:50%;background:#ff5f57;display:inline-block;cursor:pointer;" title="Fechar"></span>' +
+                    '<span style="width:12px;height:12px;border-radius:50%;background:#febc2e;display:inline-block;"></span>' +
+                    '<span style="width:12px;height:12px;border-radius:50%;background:#28c840;display:inline-block;"></span>' +
+                '</div>' +
+                '<span class="fs-4 fw-500 m-auto-lr" style="color:#8b949e;">' + escHtml(f.name) + '</span>' +
+                '<span class="fs-2 fw-600 p-3-tb p-8-lr border-rd-4" style="background:' + f.color + '22;color:' + f.color + ';">' + escHtml(f.lang) + '</span>' +
+                '<button class="copy-btn" id="copy-code-btn" data-code-id="' + id + '">Copiar</button>' +
+            '</div>' +
+            '<div class="code-viewer" style="overflow:auto;max-height:70vh;padding:16px 0;">' +
+                '<table style="border-collapse:collapse;width:100%;font-family:\'JetBrains Mono\',\'Fira Code\',\'Cascadia Code\',Consolas,monospace;font-size:13px;line-height:1.6;">' +
+                    '<tr>' +
+                        '<td class="line-nums" style="padding:0 12px 0 16px;text-align:right;user-select:none;vertical-align:top;color:#484f58;border-right:1px solid #21262d;white-space:pre;">' + lineNums + '</td>' +
+                        '<td style="padding:0 16px;vertical-align:top;"><pre style="margin:0;color:#e6edf3;white-space:pre;overflow-x:auto;tab-size:4;">' + escHtml(f.content) + '</pre></td>' +
+                    '</tr>' +
+                '</table>' +
+            '</div>' +
+            truncBanner +
+            '<div class="d-flex f-items-center f-justify-between p-8-tb p-20-lr" style="background:#161b22;border-top:1px solid #21262d;">' +
+                '<span class="fs-2" style="color:#484f58;">' + escHtml(f.lang) + ' &bull; ' + f.lines + ' linhas</span>' +
+                '<span class="fs-2" style="color:#484f58;">UTF-8</span>' +
+            '</div>';
+
+        // Open modal
+        if(modalEl && modalEl._a11yDialog){
+            modalEl._a11yDialog.show();
+        } else {
+            // fallback: dispatch click on a hidden trigger
+            var tmpBtn = document.createElement('button');
+            tmpBtn.setAttribute('data-modal-show','code-viewer');
+            tmpBtn.style.display = 'none';
+            document.body.appendChild(tmpBtn);
+            tmpBtn.click();
+            document.body.removeChild(tmpBtn);
+        }
+    });
+
+    // ── Close modal via red dot ──
+    document.addEventListener('click', function(e){
+        if(e.target.id === 'modal-close-dot'){
+            if(modalEl && modalEl._a11yDialog) modalEl._a11yDialog.hide();
+        }
+    });
+
+    // ── Copy code button ──
+    document.addEventListener('click', function(e){
+        var btn = e.target.closest('#copy-code-btn');
+        if(!btn) return;
+        var cid = btn.getAttribute('data-code-id');
+        if(!FILE_DATA || !FILE_DATA[cid]) return;
+        navigator.clipboard.writeText(FILE_DATA[cid].content).then(function(){
+            btn.textContent = 'Copiado!';
+            btn.classList.add('copied');
+            setTimeout(function(){ btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+
+    // ── Dynamic pill color ──
+    pills.forEach(function(pill){
+        var c = pill.getAttribute('data-pill-color');
+        if(c){
+            pill.style.setProperty('--pill-color', c);
+            pill.style.setProperty('--pill-bg', c + '20');
+        }
+    });
+
+    // ── Sticky nav (show after hero) ──
+    if(nav && hero){
+        var observer = new IntersectionObserver(function(entries){
+            entries.forEach(function(entry){
+                nav.style.transform = entry.isIntersecting ? 'translateY(-100%)' : 'translateY(0)';
+            });
+        }, { threshold: 0.1 });
+        observer.observe(hero);
+    }
+})();
+</script>
+</body>
+</html>
