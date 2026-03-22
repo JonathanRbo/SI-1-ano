@@ -24,7 +24,7 @@ SI-1-ano-main/
 │   └── aula-09-03-2026/   # Igualdade, Logico/Booleano, Praticando
 ├── ExpBD/
 │   ├── aula-10-03-2026/   # Praticar 1 (SQL)
-│   └── aula-17-03-2026/   # Praticar 2, SQL Parte 02
+│   └── aula-17-03-2026/   # Praticar 2 (SQL)
 ├── Projetos/
 │   └── Cassino.sb3        # Jogo de cassino (Scratch)
 ```
